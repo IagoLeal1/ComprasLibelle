@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Compras Libelle</title>
+    <link rel="stylesheet" href="style.css"> 
+
+    <link rel="icon" href="./img/libelula.png" type="image/x-icon">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.2.0/uicons-bold-rounded/css/uicons-bold-rounded.css'>
+</head>
+<body>
+    <div class="header">
+        <img src="./img/lista-de-compras.png" alt="imagen de compras" class="header-image">
+        <h1> Lista de Compras</h1>
+        <img src="./img/logotipo libelle.png" alt="logo da Libelle" class="logo">
+    </div>
+
+    <div id="filters">
+        <label for="filter-prioridade">Filtrar por Prioridade:</label>
+        <select id="filter-prioridade">
+            <option value="">Todas</option>
+            <option value="Baixa">Baixa</option>
+            <option value="Média">Média</option>
+            <option value="Alta">Alta</option>
+        </select>
+        
+        <label for="filter-aprovado">Filtrar por Aprovado:</label>
+        <select id="filter-aprovado">
+            <option value="">Todos</option>
+            <option value="true">Aprovados</option>
+            <option value="false">Não Aprovados</option>
+        </select>
+
+        <label for="search-item">Buscar Item:</label>
+        <input type="text" id="search-item" placeholder="Buscar por nome...">
+    </div>
+
+    <form id="form-compras">
+        <input type="text" id="item" placeholder="Novo item" required>
+        <select id="prioridade">
+            <option value="Baixa">Baixa</option>
+            <option value="Média">Média</option>
+            <option value="Alta">Alta</option>    
+        </select>
+
+        <input type="text" id="valor" placeholder="Valor (ex: R$ 10,00)"> 
+        <button type="submit">Adicionar</button>
+
+    </form>
+
+    <ul id="lista-compras"></ul>
+
+    <!-- Importe o Supabase CDN e o seu script.js -->
+    <!-- Use type="module" porque você está usando 'import' em script.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js" type="module"></script>
+</body>
+</html>

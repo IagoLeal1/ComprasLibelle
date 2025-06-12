@@ -1,0 +1,266 @@
+/* Estilos básicos para melhor legibilidade - você pode ajustar */
+body {
+    font-family: Ubuntu;
+    margin: 20px;
+    background-color: #f4f7f6;
+    color: #333;
+}
+
+h1 {
+    color: #234161;
+    text-align: center;
+    margin-bottom: 10px;
+    margin-left: 20px;
+    font-size: 2.5em;
+}
+.header{
+    position: relative;
+    height: 100px; /* Ajuste a altura conforme necessário */
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.header-image{
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo{
+    position: absolute;
+    display: block;
+    top: 0px;
+    right: 20px;
+    width: 150px;
+}
+
+#filters {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #FFF;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+#filters label {
+    margin-right: 5px;
+    font-weight: bold;
+    color: #2F4F4F;
+    font-size: 1.1em;
+}
+
+#filters select,
+#filters input[type="text"] {
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1em;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    box-sizing: border-box; /* Garante que padding não aumenta a largura total */
+}
+
+#filters select:focus,
+#filters input[type="text"]:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+    outline: none;
+}
+
+#form-compras {
+    margin-bottom: 20px;
+    padding: 20px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #ffffff;
+    display: flex;
+    flex-wrap: wrap; /* Permite que os itens quebrem a linha em telas menores */
+    gap: 15px;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+#form-compras input,
+#form-compras select,
+#form-compras button {
+    padding: 10px 15px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    font-size: 1em;
+    box-sizing: border-box;
+    flex-grow: 1; /* Permite que os inputs ocupem o espaço disponível */
+}
+
+#form-compras button {
+    background-color: #28a745;
+    color: white;
+    cursor: pointer;
+    border: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    flex-grow: 0; /* Impede que o botão se estique demais */
+}
+
+#form-compras button:hover {
+    background-color: #218838;
+}
+
+#lista-compras {
+    list-style: none;
+    padding: 0;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+#lista-compras li {
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+    display: flex; /* ATIVADO FLEXBOX */
+    align-items: center;
+    justify-content: space-between; /* DISTRIBUI O ESPAÇO ENTRE OS ITENS */
+    background-color: #ffffff;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#lista-compras li:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+#lista-compras li:last-child {
+    border-bottom: none;
+}
+
+/* Novo estilo para o texto do item */
+#lista-compras li .item-text {
+    flex-grow: 1; /* Permite que o texto ocupe o máximo de espaço */
+    margin-right: 15px; /* Adiciona um pouco de espaço entre o texto e os botões */
+    word-break: break-word; /* Garante que textos longos não quebrem o layout */
+}
+
+/* Estilo para o grupo de botões */
+#lista-compras li .button-group {
+    display: flex; /* Faz com que os botões dentro do grupo também usem flexbox */
+    gap: 5px; /* Espaçamento entre os botões */
+    flex-shrink: 0; /* Impede que o grupo de botões encolha */
+}
+
+/* Estilo para o Select de Parcelamento (por item) - AGORA PADRÃO DA APLICAÇÃO */
+#lista-compras li .parcelamento-select {
+    padding: 8px 12px; /* Ajustado para ser como os inputs */
+    border: 1px solid #ddd; /* Cor de borda similar ao formulário */
+    border-radius: 6px; /* Mais arredondado */
+    font-size: 1em; /* Tamanho da fonte padrão */
+    cursor: pointer;
+    background-color: #ffffff; /* Fundo branco para consistência */
+    transition: border-color 0.3s, box-shadow 0.3s; /* Transições suaves */
+    box-sizing: border-box; /* Inclui padding na largura/altura total */
+}
+
+#lista-compras li .parcelamento-select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+    outline: none;
+}
+
+/* NOVO: Estilo para itens APROVADOS (vindo do DB) */
+#lista-compras li.item-aprovado {
+    background-color: #e6ffe6; /* Um fundo verde claro para itens aprovados */
+    border-left: 5px solid #28a745; /* Uma borda verde na esquerda */
+}
+
+/* Estilo para itens APROVADOS (vindo do DB) */
+#lista-compras li.item-aprovado {
+    background-color: #e6ffe6; /* Um fundo verde claro para itens aprovados */
+    border-left: 5px solid #28a745; /* Uma borda verde na esquerda */
+}
+
+#lista-compras li.item-aprovado .button-group::before {
+    content: 'APROVADO';
+    color: #28a745; 
+    font-weight: bold;
+    margin-right: 10px;
+    margin-top: 10px; /* Espaçamento superior para alinhar com o texto */
+    font-size: 0.9em; 
+    white-space: nowrap; 
+    display: inline-block; 
+}
+
+#lista-compras li button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.4em; /* Ícones maiores */
+    transition: transform 0.2s ease;
+    padding: 5px; /* Adiciona padding para facilitar o clique */
+    border-radius: 4px;
+}
+
+#lista-compras li button:hover {
+    transform: scale(1.1);
+    background-color: #e9ecef;
+}
+
+/* Estilizando os ícones específicos */
+#lista-compras li button i.fi {
+    color: #28a745; /* Cor verde para os ícones padrão (concluir) */
+    font-size: 1em; /* Garante que o ícone preencha o botão sem ser muito grande */
+    line-height: 1; /* Ajuda a alinhar verticalmente o ícone */
+}
+
+/* NOVO ESTILO AQUI: Cor vermelha para o ícone de cruz (excluir) */
+#lista-compras li button i.fi-br-trash {
+    color: #dc3545; /* Vermelho */
+}
+
+/* Cores de prioridade */
+#lista-compras li[data-prioridade="Alta"] {
+    color: #dc3545;
+    font-weight: bold;
+} /* Vermelho */
+
+#lista-compras li[data-prioridade="Média"] {
+    color: #ffc107;
+    font-weight: bold;
+} /* Laranja */
+
+#lista-compras li[data-prioridade="Baixa"] {
+    color: #28a745;
+    font-weight: bold;
+} /* Verde */
+
+/* Media Queries para responsividade */
+@media (max-width: 600px) {
+    #filters,
+    #form-compras {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    #form-compras input,
+    #form-compras select,
+    #form-compras button {
+        width: 100%; /* Ocupa toda a largura */
+    }
+    #lista-compras li {
+        flex-direction: column; /* Em telas pequenas, empilha texto e botões */
+        align-items: flex-start; /* Alinha tudo à esquerda */
+        gap: 10px; /* Espaçamento entre o texto e os botões */
+    }
+    #lista-compras li .button-group {
+        width: 100%; /* Botões ocupam a largura total em telas pequenas */
+        justify-content: flex-end; /* Alinha os botões à direita dentro do grupo */
+    }
+}
