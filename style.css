@@ -1,42 +1,80 @@
 /* Estilos básicos para melhor legibilidade - você pode ajustar */
 body {
-    font-family: Ubuntu;
+    font-family: Ubuntu, sans-serif; /* Adicionado fallback font */
     margin: 20px;
     background-color: #f4f7f6;
     color: #333;
+    padding: 0 10px; /* Adicionado padding geral para telas pequenas */
 }
 
 h1 {
     color: #234161;
-    text-align: center;
-    margin-bottom: 10px;
-    margin-left: 20px;
+    text-align: left; /* Alinha o texto à esquerda por padrão (desktop) */
+    margin-bottom: 10px; /* Mantém um pequeno espaço, caso o header quebre a linha */
     font-size: 2.5em;
-}
-.header{
-    position: relative;
-    height: 100px; /* Ajuste a altura conforme necessário */
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    flex-grow: 1; /* Permite que o h1 cresça e empurre o logo para a direita */
+
+    /* Responsividade para h1 */
+    @media (max-width: 600px) {
+        font-size: 1.5em; /* Fonte menor em mobile */
+        margin: 0; /* Remove margens para melhor alinhamento flex */
+        flex-grow: 1; /* Permite que cresça em mobile também */
+        text-align: center; /* Centraliza o texto dentro do espaço flexível em mobile */
+        min-width: 100px; /* Garante uma largura mínima para evitar que encolha demais */
+    }
 }
 
-.header-image{
+.header {
+    position: relative;
+    height: 100px; /* Altura padrão para desktop */
+    width: 100%;
+    display: flex;
+    align-items: center; /* Alinha verticalmente os itens */
+    justify-content: flex-start; /* Alinha os itens à esquerda por padrão */
+    margin-bottom: 20px;
+    padding: 0 10px;
+    flex-wrap: nowrap; /* Por padrão, tenta manter os itens na mesma linha */
+
+    /* Responsividade para o header */
+    @media (max-width: 600px) {
+        height: auto; /* Altura flexível em mobile */
+        padding-bottom: 10px;
+        justify-content: center; /* Centraliza o grupo em mobile */
+        gap: 5px; /* Espaçamento entre os itens do header */
+        flex-wrap: nowrap; /* Tenta manter na mesma linha no mobile */
+    }
+}
+
+.header-image {
     width: 50px;
     height: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0; /* Previne que o item encolha */
+    margin-right: 15px; /* Espaço entre a imagem e o h1 no desktop */
+
+    /* Responsividade para a imagem do header */
+    @media (max-width: 600px) {
+        width: 35px; /* Reduz o tamanho da imagem em mobile */
+        height: 35px;
+        margin-right: 5px; /* Espaço menor em mobile */
+    }
 }
 
-.logo{
-    position: absolute;
+.logo {
     display: block;
-    top: 0px;
-    right: 20px;
-    width: 150px;
+    width: 150px; /* Tamanho padrão para desktop */
+    flex-shrink: 0; /* Previne que o item encolha */
+    margin-left: auto; /* ESTE É O KEY: Empurra o logo para a extrema direita */
+
+    /* Responsividade para o logo */
+    @media (max-width: 600px) {
+        width: 60px; /* Reduz o tamanho do logo em mobile */
+        margin-left: 5px; /* Ajusta a margem para mobile (não auto) */
+    }
 }
+
 
 #filters {
     margin-bottom: 20px;
@@ -50,6 +88,13 @@ h1 {
     align-items: center;
     justify-content: center;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+    /* Responsividade para filtros */
+    @media (max-width: 600px) {
+        flex-direction: column; /* Empilha os filtros */
+        align-items: stretch; /* Estica para preencher a largura */
+        padding: 10px;
+    }
 }
 
 #filters label {
@@ -57,6 +102,10 @@ h1 {
     font-weight: bold;
     color: #2F4F4F;
     font-size: 1.1em;
+    @media (max-width: 600px) {
+        margin-right: 0; /* Remove margem direita para não empurrar nada */
+        margin-bottom: 5px; /* Adiciona um pequeno espaço abaixo do label */
+    }
 }
 
 #filters select,
@@ -67,6 +116,11 @@ h1 {
     font-size: 1em;
     transition: border-color 0.3s, box-shadow 0.3s;
     box-sizing: border-box; /* Garante que padding não aumenta a largura total */
+
+    /* Responsividade para selects e inputs de filtro */
+    @media (max-width: 600px) {
+        width: 100%; /* Ocupa a largura total */
+    }
 }
 
 #filters select:focus,
@@ -83,11 +137,18 @@ h1 {
     border-radius: 8px;
     background-color: #ffffff;
     display: flex;
-    flex-wrap: wrap; /* Permite que os itens quebrem a linha em telas menores */
+    flex-wrap: wrap;
     gap: 15px;
     align-items: center;
     justify-content: center;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+    /* Responsividade para o formulário de adição */
+    @media (max-width: 600px) {
+        flex-direction: column; /* Empilha os campos */
+        align-items: stretch; /* Estica para preencher a largura */
+        padding: 15px;
+    }
 }
 
 #form-compras input,
@@ -99,6 +160,11 @@ h1 {
     font-size: 1em;
     box-sizing: border-box;
     flex-grow: 1; /* Permite que os inputs ocupem o espaço disponível */
+
+    /* Responsividade para inputs do formulário */
+    @media (max-width: 600px) {
+        width: 100%; /* Ocupa a largura total */
+    }
 }
 
 #form-compras button {
@@ -108,7 +174,7 @@ h1 {
     border: none;
     font-weight: bold;
     transition: background-color 0.3s ease;
-    flex-grow: 0; /* Impede que o botão se estique demais */
+    flex-grow: 0; 
 }
 
 #form-compras button:hover {
@@ -118,21 +184,29 @@ h1 {
 #lista-compras {
     list-style: none;
     padding: 0;
-    max-width: 100%;
+    max-width: 100%; /* Garante que a lista ocupe toda a largura disponível */
     margin: 0 auto;
 }
 
 #lista-compras li {
     padding: 15px 20px;
     border-bottom: 1px solid #eee;
-    display: flex; /* ATIVADO FLEXBOX */
+    display: flex;
     align-items: center;
-    justify-content: space-between; /* DISTRIBUI O ESPAÇO ENTRE OS ITENS */
+    justify-content: space-between;
     background-color: #ffffff;
     margin-bottom: 8px;
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    /* Responsividade para itens da lista */
+    @media (max-width: 600px) {
+        flex-direction: column; /* Empilha o texto e os botões */
+        align-items: flex-start; /* Alinha o conteúdo à esquerda */
+        padding: 10px 15px; /* Ajusta o padding */
+        gap: 10px; /* Espaçamento entre o texto e o grupo de botões */
+    }
 }
 
 #lista-compras li:hover {
@@ -146,28 +220,63 @@ h1 {
 
 /* Novo estilo para o texto do item */
 #lista-compras li .item-text {
-    flex-grow: 1; /* Permite que o texto ocupe o máximo de espaço */
-    margin-right: 15px; /* Adiciona um pouco de espaço entre o texto e os botões */
-    word-break: break-word; /* Garante que textos longos não quebrem o layout */
+    flex-grow: 1; 
+    margin-right: 15px; 
+    word-break: break-word; 
+
+    @media (max-width: 600px) {
+        margin-right: 0; /* Remove margem extra */
+        width: 100%; /* Ocupa a largura total disponível */
+    }
+}
+
+/* Estilo para o texto de itens CONCLUÍDOS (vindo do DB) */
+#lista-compras li .item-text.item-concluido-from-db {
+    text-decoration: line-through;
+    color: #888;
+    font-style: italic;
+}
+
+/* Estilo para itens APROVADOS (vindo do DB) */
+#lista-compras li.item-aprovado {
+    background-color: #e6ffe6;
+    border-left: 5px solid #28a745;
 }
 
 /* Estilo para o grupo de botões */
 #lista-compras li .button-group {
-    display: flex; /* Faz com que os botões dentro do grupo também usem flexbox */
-    gap: 5px; /* Espaçamento entre os botões */
-    flex-shrink: 0; /* Impede que o grupo de botões encolha */
+    display: flex;
+    gap: 5px;
+    flex-shrink: 0;
+    align-items: center; /* Garante que o checkbox e os botões estejam alinhados */
+
+    @media (max-width: 600px) {
+        width: 100%; /* Grupo de botões ocupa a largura total */
+        justify-content: flex-end; /* Alinha os botões à direita em telas pequenas */
+        margin-top: 10px; /* Adiciona espaço acima do grupo de botões */
+    }
 }
 
-/* Estilo para o Select de Parcelamento (por item) - AGORA PADRÃO DA APLICAÇÃO */
-#lista-compras li .parcelamento-select {
-    padding: 8px 12px; /* Ajustado para ser como os inputs */
-    border: 1px solid #ddd; /* Cor de borda similar ao formulário */
-    border-radius: 6px; /* Mais arredondado */
-    font-size: 1em; /* Tamanho da fonte padrão */
+/* Estilo para o Checkbox de "Aprovado" - Padrão do navegador */
+#lista-compras li .aprovado-checkbox {
+    width: 20px;
+    height: 20px;
     cursor: pointer;
-    background-color: #ffffff; /* Fundo branco para consistência */
-    transition: border-color 0.3s, box-shadow 0.3s; /* Transições suaves */
-    box-sizing: border-box; /* Inclui padding na largura/altura total */
+    vertical-align: middle;
+    flex-shrink: 0;
+    accent-color: #007bff;
+}
+
+/* Estilo para o Select de Parcelamento (por item) - PADRÃO DA APLICAÇÃO */
+#lista-compras li .parcelamento-select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1em;
+    cursor: pointer;
+    background-color: #ffffff;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    box-sizing: border-box;
 }
 
 #lista-compras li .parcelamento-select:focus {
@@ -176,36 +285,32 @@ h1 {
     outline: none;
 }
 
-/* NOVO: Estilo para itens APROVADOS (vindo do DB) */
-#lista-compras li.item-aprovado {
-    background-color: #e6ffe6; /* Um fundo verde claro para itens aprovados */
-    border-left: 5px solid #28a745; /* Uma borda verde na esquerda */
-}
-
-/* Estilo para itens APROVADOS (vindo do DB) */
-#lista-compras li.item-aprovado {
-    background-color: #e6ffe6; /* Um fundo verde claro para itens aprovados */
-    border-left: 5px solid #28a745; /* Uma borda verde na esquerda */
-}
-
+/* Texto "APROVADO!!!" à esquerda do checkbox (dentro do button-group) */
 #lista-compras li.item-aprovado .button-group::before {
     content: 'APROVADO';
-    color: #28a745; 
+    color: #28a745;
     font-weight: bold;
     margin-right: 10px;
-    margin-top: 10px; /* Espaçamento superior para alinhar com o texto */
-    font-size: 0.9em; 
-    white-space: nowrap; 
-    display: inline-block; 
+    /* margin-top: 10px; Removido, pois align-items: center já deve alinhar bem */
+    font-size: 0.9em;
+    white-space: nowrap;
+    display: inline-block;
+
+    @media (max-width: 600px) {
+        margin-right: auto; /* Empurra para a esquerda e libera espaço à direita */
+        margin-top: 0; /* Zera margem superior, pois o flex-direction: column já ajuda */
+        order: -1; /* Coloca o texto "APROVADO" antes dos outros elementos do button-group */
+        text-align: left; /* Alinha o texto à esquerda quando empilhado */
+    }
 }
 
 #lista-compras li button {
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 1.4em; /* Ícones maiores */
+    font-size: 1.4em;
     transition: transform 0.2s ease;
-    padding: 5px; /* Adiciona padding para facilitar o clique */
+    padding: 5px;
     border-radius: 4px;
 }
 
@@ -216,34 +321,41 @@ h1 {
 
 /* Estilizando os ícones específicos */
 #lista-compras li button i.fi {
-    color: #28a745; /* Cor verde para os ícones padrão (concluir) */
-    font-size: 1em; /* Garante que o ícone preencha o botão sem ser muito grande */
-    line-height: 1; /* Ajuda a alinhar verticalmente o ícone */
+    color: #28a745;
+    font-size: 1em;
+    line-height: 1;
 }
 
-/* NOVO ESTILO AQUI: Cor vermelha para o ícone de cruz (excluir) */
-#lista-compras li button i.fi-br-trash {
-    color: #dc3545; /* Vermelho */
+/* Cor vermelha para o ícone de cruz (excluir) */
+#lista-compras li button i.fi-br-trash { /* Ícone de lixeira, se você mudou */
+    color: #dc3545;
 }
+/* Se você ainda usa fi-br-cross, mantenha este: */
+#lista-compras li button i.fi-br-cross {
+    color: #dc3545;
+}
+
 
 /* Cores de prioridade */
 #lista-compras li[data-prioridade="Alta"] {
     color: #dc3545;
     font-weight: bold;
-} /* Vermelho */
+}
 
 #lista-compras li[data-prioridade="Média"] {
     color: #ffc107;
     font-weight: bold;
-} /* Laranja */
+}
 
 #lista-compras li[data-prioridade="Baixa"] {
     color: #28a745;
     font-weight: bold;
-} /* Verde */
+}
 
-/* Media Queries para responsividade */
+/* Media Queries para responsividade geral */
 @media (max-width: 600px) {
+    /* Já definidas nas seções anteriores, mas para agrupar */
+    /* Ajustes para forms e listas */
     #filters,
     #form-compras {
         flex-direction: column;
@@ -252,15 +364,33 @@ h1 {
     #form-compras input,
     #form-compras select,
     #form-compras button {
-        width: 100%; /* Ocupa toda a largura */
+        width: 100%;
     }
     #lista-compras li {
-        flex-direction: column; /* Em telas pequenas, empilha texto e botões */
-        align-items: flex-start; /* Alinha tudo à esquerda */
-        gap: 10px; /* Espaçamento entre o texto e os botões */
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
     }
     #lista-compras li .button-group {
-        width: 100%; /* Botões ocupam a largura total em telas pequenas */
-        justify-content: flex-end; /* Alinha os botões à direita dentro do grupo */
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    /* Ajustes específicos para o texto "APROVADO" em mobile */
+    #lista-compras li.item-aprovado .button-group::before {
+        margin-right: auto; /* Empurra para a esquerda */
+        margin-bottom: 5px; /* Adiciona espaço abaixo do texto "APROVADO!!!" */
+        order: -1; /* Coloca o texto "APROVADO" antes dos outros elementos do button-group */
+        text-align: left; /* Alinha o texto à esquerda quando empilhado */
+    }
+}
+
+/* Adicional: Regra para telas um pouco maiores, se necessário */
+@media (min-width: 601px) and (max-width: 800px) {
+    body {
+        margin: 20px 20px; /* Um pouco mais de margem lateral */
+    }
+    #lista-compras {
+        padding: 0 10px; /* Padding para a lista em telas médias */
     }
 }

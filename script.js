@@ -52,15 +52,16 @@ const filterAprovado = document.getElementById("filter-aprovado");
 
 /**
  * Carrega a lista de compras do Firestore, aplicando filtros e ouvindo atualizações em tempo real.
+ * A busca por item é feita no lado do cliente após a obtenção dos dados do Firestore.
  */
 function carregarCompras() {
   const prioridadeSelecionada = filterPrioridade.value;
-  const termoBusca = searchItem.value.trim();
+  const termoBusca = searchItem.value.trim().toLowerCase(); // Converte para minúsculas uma vez
   const aprovadoSelecionado = filterAprovado.value;
 
   let q = collection(db, "compras"); // Refere-se à coleção 'compras'
 
-  // Aplica filtros
+  // Aplica filtros de prioridade e aprovado diretamente na consulta do Firestore
   if (prioridadeSelecionada) {
     q = query(q, where("prioridade", "==", prioridadeSelecionada));
   }
@@ -68,28 +69,33 @@ function carregarCompras() {
     const isAprovado = aprovadoSelecionado === "true";
     q = query(q, where("aprovado", "==", isAprovado));
   }
-  // Firebase Firestore não suporta busca case-insensitive direta como o Supabase.
-  // Para buscar por item, precisaríamos de uma abordagem diferente (ex: Elastic Search, ou buscar tudo e filtrar no cliente).
-  // Por simplicidade, se houver termo de busca, vamos pular a filtragem no DB por enquanto,
-  // ou você teria que buscar tudo e filtrar no cliente se a busca for essencial.
-  // Para uma busca mais robusta, você precisaria de um serviço como Algolia ou uma Cloud Function.
-  // Por ora, o filtro de busca no DB foi removido para evitar complexidade.
-  // Se quiser manter o filtro, ele precisaria ser feito no cliente após a busca.
-  // if (termoBusca) {
-  //   q = query(q, where("item", ">=", termoBusca), where("item", "<=", termoBusca + '\uf8ff'));
-  // }
-
 
   // Ordena os resultados pela data de inserção
   q = query(q, orderBy("inserido_em", "desc"));
 
   // onSnapshot escuta as mudanças em tempo real
   onSnapshot(q, (snapshot) => {
-    lista.innerHTML = ""; // Limpa a lista antes de renderizar
+    // Array para armazenar os itens que serão de fato exibidos após a filtragem
+    const itemsToDisplay = [];
+
     snapshot.forEach((docItem) => {
       const item = docItem.data();
+      item.id = docItem.id; // Adiciona o ID do documento ao objeto item para uso posterior
+
+      // NOVO: Aplica o filtro de busca por item AQUI (no lado do cliente)
+      if (termoBusca && !item.item.toLowerCase().includes(termoBusca)) {
+        return; // Pula este item se ele não corresponder ao termo de busca
+      }
+
+      itemsToDisplay.push(item); // Adiciona o item à lista de exibição se passar no filtro
+    });
+
+    lista.innerHTML = ""; // Limpa a lista antes de renderizar os itens filtrados
+
+    // Renderiza apenas os itens que passaram nos filtros
+    itemsToDisplay.forEach(item => {
       const li = document.createElement("li");
-      li.dataset.prioridade = item.prioridade; // Para estilização de prioridade no CSS
+      li.dataset.prioridade = item.prioridade; 
 
       const itemTextSpan = document.createElement("span");
       itemTextSpan.classList.add("item-text");
@@ -104,7 +110,6 @@ function carregarCompras() {
       }
       itemTextSpan.textContent = displayText;
 
-      // Adiciona classe para itens concluídos
       if (item.concluido) {
         itemTextSpan.classList.add('item-concluido-from-db');
       }
@@ -112,7 +117,6 @@ function carregarCompras() {
       const buttonGroupDiv = document.createElement("div");
       buttonGroupDiv.classList.add("button-group");
 
-      // Adiciona classe para itens aprovados
       if (item.aprovado) {
         li.classList.add('item-aprovado');
       }
@@ -130,8 +134,8 @@ function carregarCompras() {
       selectParcelamento.value = item.parcelamento !== undefined && item.parcelamento !== null ? item.parcelamento : 0;
       selectParcelamento.onchange = async () => {
         const newParcelamento = parseInt(selectParcelamento.value, 10);
-        await updateDoc(doc(db, "compras", docItem.id), { parcelamento: newParcelamento });
-        // onSnapshot cuidará da recarga visual, não precisamos chamar carregarCompras()
+        // Usa item.id para referenciar o documento correto
+        await updateDoc(doc(db, "compras", item.id), { parcelamento: newParcelamento });
       };
 
       // Checkbox para Aprovado
@@ -141,27 +145,27 @@ function carregarCompras() {
       checkboxAprovado.classList.add("aprovado-checkbox");
       checkboxAprovado.checked = item.aprovado;
       checkboxAprovado.onchange = async () => {
-        await updateDoc(doc(db, "compras", docItem.id), { aprovado: checkboxAprovado.checked });
-        // onSnapshot cuidará da recarga visual
+        // Usa item.id para referenciar o documento correto
+        await updateDoc(doc(db, "compras", item.id), { aprovado: checkboxAprovado.checked });
       };
 
       // Botão Concluir
       const btnConcluir = document.createElement("button");
       btnConcluir.classList.add("concluir-toggle-button");
-      btnConcluir.innerHTML = item.concluido ? '<i class="fi fi-ss-thumbs-up-trust"></i>' : '<i class="fi fi-br-check"></i>';
+      btnConcluir.innerHTML = item.concluido ? '<i class="fi fi-br-truck-side"></i>' : '<i class="fi fi-br-check"></i>';
       btnConcluir.title = item.concluido ? "Desmarcar como concluído" : "Marcar como concluído";
       btnConcluir.onclick = async () => {
-        await updateDoc(doc(db, "compras", docItem.id), { concluido: !item.concluido });
-        // onSnapshot cuidará da recarga visual
+        // Usa item.id para referenciar o documento correto
+        await updateDoc(doc(db, "compras", item.id), { concluido: !item.concluido });
       };
 
       // Botão Excluir
       const btnExcluir = document.createElement("button");
-      btnExcluir.innerHTML = '<i class="fi fi-br-cross"></i>';
+      btnExcluir.innerHTML = '<i class="fi fi-br-trash"></i>';
       btnExcluir.title = "Excluir item";
       btnExcluir.onclick = async () => {
-        await deleteDoc(doc(db, "compras", docItem.id));
-        // onSnapshot cuidará da recarga visual
+        // Usa item.id para referenciar o documento correto
+        await deleteDoc(doc(db, "compras", item.id));
       };
 
       buttonGroupDiv.appendChild(selectParcelamento);
@@ -175,20 +179,9 @@ function carregarCompras() {
       lista.appendChild(li);
     });
 
-    // Se houver termo de busca, filtre no cliente (Firestore não faz ilike como Supabase)
-    // Isso é uma simplificação. Para grandes volumes, considere Algolia ou Cloud Functions.
-    if (termoBusca) {
-      const filteredItems = Array.from(lista.children).filter(liElement => {
-        const itemText = liElement.querySelector('.item-text').textContent.toLowerCase();
-        return itemText.includes(termoBusca.toLowerCase());
-      });
-      lista.innerHTML = '';
-      filteredItems.forEach(item => lista.appendChild(item));
-    }
-
   }, (error) => {
     console.error("Erro ao carregar compras (onSnapshot):", error);
-    alert("Erro ao carregar compras em tempo real.");
+    alert("Erro ao carregar compras em tempo real. Verifique seus índices do Firestore no console.");
   });
 }
 
@@ -199,7 +192,7 @@ form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const item = document.getElementById("item").value.trim();
   const prioridade = document.getElementById("prioridade").value;
-  const valor = document.getElementById("valor").value.trim();
+  const valor = document.getElementById("valor").value.trim(); 
   const parcelamento = 0; // Default 0 quando adicionado via formulário
 
   if (!item) {
@@ -213,21 +206,20 @@ form.addEventListener("submit", async (e) => {
       prioridade: prioridade,
       valor: valor,
       parcelamento: parcelamento,
-      concluido: false, // Novo item inicia não concluído
-      aprovado: false,   // Novo item inicia não aprovado
-      inserido_em: new Date(), // Timestamp para ordenação
+      concluido: false, 
+      aprovado: false,   
+      inserido_em: new Date(), 
     });
     form.reset();
   } catch (error) {
     console.error("Erro ao adicionar compra:", error);
     alert("Erro ao adicionar compra.");
   }
-  // onSnapshot cuidará da recarga visual, não precisamos chamar carregarCompras()
 });
 
 // Adiciona listeners para os eventos de mudança nos filtros
 filterPrioridade.addEventListener("change", carregarCompras);
-searchItem.addEventListener("input", carregarCompras);
+searchItem.addEventListener("input", carregarCompras); // Usa 'input' para filtrar em tempo real
 filterAprovado.addEventListener("change", carregarCompras);
 
 // Inicia o carregamento e a escuta em tempo real quando a página é carregada
