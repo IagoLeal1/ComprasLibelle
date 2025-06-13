@@ -12,14 +12,14 @@ import {
   onSnapshot, 
   doc 
 } from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js';
-import { // NOVAS IMPORTAÇÕES PARA AUTENTICAÇÃO
+import { 
   getAuth, 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
   signOut, 
   onAuthStateChanged,
-  GoogleAuthProvider, // Para login com Google
-  signInWithPopup // Para login com Google (popup)
+  GoogleAuthProvider, 
+  signInWithPopup 
 } from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js';
 
 
@@ -37,8 +37,8 @@ const firebaseConfig = {
 
 // Inicializa o Firebase
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app); // Obtém a instância do Firestore
-const auth = getAuth(app); // Obtém a instância do Auth para autenticação
+const db = getFirestore(app); 
+const auth = getAuth(app); 
 
 
 // --- Referências aos elementos do DOM para Autenticação ---
@@ -68,7 +68,7 @@ function formatarMoeda(valor) {
 }
 
 // Obtenha referências aos elementos do DOM (já existentes)
-const form = document.getElementById("form-compras");
+const form = document.getElementById("form-compras"); // Este é o formulário a ser escondido/mostrado
 const lista = document.getElementById("lista-compras");
 const filterPrioridade = document.getElementById("filter-prioridade");
 const searchItem = document.getElementById("search-item");
@@ -76,25 +76,40 @@ const filterAprovado = document.getElementById("filter-aprovado");
 
 
 /**
- * Gerencia a visibilidade das seções de autenticação e aplicativo.
+ * Gerencia a visibilidade das seções de autenticação e aplicativo,
+ * controlando a visibilidade do formulário de adicionar itens com base na role de admin.
  * @param {Object|null} user - O objeto de usuário autenticado ou null se deslogado.
  */
-function updateUI(user) {
+async function updateUI(user) { // Adicionado 'async' pois usaremos await
   if (user) {
     // Usuário logado
     authSection.classList.add('hidden'); // Esconde a seção de autenticação
     appContent.classList.remove('hidden'); // Mostra o conteúdo do app
     userEmailSpan.textContent = user.email; // Exibe o e-mail do usuário
-    carregarCompras(); // Carrega a lista para o usuário logado
+
+    // NOVO: Verificar se o usuário é admin
+    // Força a atualização do token para garantir que as claims mais recentes sejam carregadas
+    const idTokenResult = await user.getIdTokenResult(true); 
+    const isAdmin = idTokenResult.claims.admin === true;
+
+    if (isAdmin) {
+      form.classList.remove('hidden'); // Mostra o formulário para admins
+    } else {
+      form.classList.add('hidden'); // Esconde o formulário para não-admins
+    }
+
+    carregarCompras(); // Carrega a lista para o usuário logado (todos podem ler)
   } else {
     // Usuário deslogado
     authSection.classList.remove('hidden'); // Mostra a seção de autenticação
     appContent.classList.add('hidden'); // Esconde o conteúdo do app
+    form.classList.add('hidden'); // Garante que o formulário está escondido quando não logado
     lista.innerHTML = ''; // Limpa a lista se não houver usuário logado
-    // Se o onSnapshot estiver ativo, desinscreve ele aqui para evitar erros de permissão
+
+    // Se o onSnapshot estiver ativo, desinscreve ele aqui para evitar múltiplas chamadas/erros
     if (unsubscribeFirestore) {
         unsubscribeFirestore();
-        unsubscribeFirestore = null; // Zera a variável
+        unsubscribeFirestore = null; 
     }
   }
 }
@@ -171,28 +186,26 @@ logoutBtn.addEventListener('click', async () => {
 });
 
 // --- Listener para o estado de autenticação (sempre verifica se o usuário está logado) ---
-// ESSENCIAL: onAuthStateChanged é a forma de saber se o usuário está logado
 onAuthStateChanged(auth, (user) => {
-  updateUI(user);
+  updateUI(user); // Chamada para atualizar a UI com base no estado de autenticação
 });
 
 
 // --- Funções de Lógica do Aplicativo (Firestore) ---
 
-let unsubscribeFirestore = null; // Variável para armazenar a função de desinscrição do onSnapshot
+let unsubscribeFirestore = null; 
 
 /**
  * Carrega a lista de compras do Firestore, aplicando filtros e ouvindo atualizações em tempo real.
- * A busca por item é feita no lado do cliente após a obtenção dos dados do Firestore.
  */
 function carregarCompras() {
-  // Desinscreve o listener anterior para evitar múltiplas chamadas se updateUI for chamado várias vezes
+  // Desinscreve o listener anterior para evitar múltiplas chamadas
   if (unsubscribeFirestore) {
     unsubscribeFirestore();
-    unsubscribeFirestore = null; // Zera a variável para garantir que um novo listener será criado
+    unsubscribeFirestore = null; 
   }
 
-  // Se não houver usuário logado, não tenta carregar os dados (updateUI já deve esconder a lista)
+  // Não tenta carregar dados se não houver usuário logado (a lista estará oculta de qualquer forma)
   if (!auth.currentUser) {
       console.log("Nenhum usuário logado. Não carregando a lista de compras.");
       return;
@@ -214,7 +227,6 @@ function carregarCompras() {
 
   q = query(q, orderBy("inserido_em", "desc"));
 
-  // onSnapshot escuta as mudanças em tempo real e armazena a função de desinscrição
   unsubscribeFirestore = onSnapshot(q, (snapshot) => {
     const itemsToDisplay = [];
 
@@ -270,8 +282,15 @@ function carregarCompras() {
       }
       selectParcelamento.value = item.parcelamento !== undefined && item.parcelamento !== null ? item.parcelamento : 0;
       selectParcelamento.onchange = async () => {
-        // Garante que o usuário está logado para escrever
-        if (!auth.currentUser) { alert("Você precisa estar logado para editar itens."); return; }
+        // Verifica se o usuário é admin antes de permitir a edição
+        const currentUser = auth.currentUser;
+        if (!currentUser) { alert("Você precisa estar logado para editar itens."); return; }
+        const idTokenResult = await currentUser.getIdTokenResult(true);
+        if (idTokenResult.claims.admin !== true) {
+            alert("Apenas administradores podem editar itens.");
+            return;
+        }
+
         const newParcelamento = parseInt(selectParcelamento.value, 10);
         await updateDoc(doc(db, "compras", item.id), { parcelamento: newParcelamento });
       };
@@ -282,8 +301,14 @@ function carregarCompras() {
       checkboxAprovado.classList.add("aprovado-checkbox");
       checkboxAprovado.checked = item.aprovado;
       checkboxAprovado.onchange = async () => {
-        // Garante que o usuário está logado para escrever
-        if (!auth.currentUser) { alert("Você precisa estar logado para editar itens."); return; }
+        // Verifica se o usuário é admin antes de permitir a edição
+        const currentUser = auth.currentUser;
+        if (!currentUser) { alert("Você precisa estar logado para editar itens."); return; }
+        const idTokenResult = await currentUser.getIdTokenResult(true);
+        if (idTokenResult.claims.admin !== true) {
+            alert("Apenas administradores podem editar itens.");
+            return;
+        }
         await updateDoc(doc(db, "compras", item.id), { aprovado: checkboxAprovado.checked });
       };
 
@@ -292,8 +317,14 @@ function carregarCompras() {
       btnConcluir.innerHTML = item.concluido ? '<i class="fi fi-br-truck-side"></i>' : '<i class="fi fi-br-check"></i>';
       btnConcluir.title = item.concluido ? "Desmarcar como concluído" : "Marcar como concluído";
       btnConcluir.onclick = async () => {
-        // Garante que o usuário está logado para escrever
-        if (!auth.currentUser) { alert("Você precisa estar logado para editar itens."); return; }
+        // Verifica se o usuário é admin antes de permitir a edição
+        const currentUser = auth.currentUser;
+        if (!currentUser) { alert("Você precisa estar logado para editar itens."); return; }
+        const idTokenResult = await currentUser.getIdTokenResult(true);
+        if (idTokenResult.claims.admin !== true) {
+            alert("Apenas administradores podem editar itens.");
+            return;
+        }
         await updateDoc(doc(db, "compras", item.id), { concluido: !item.concluido });
       };
 
@@ -301,10 +332,37 @@ function carregarCompras() {
       btnExcluir.innerHTML = '<i class="fi fi-br-trash"></i>';
       btnExcluir.title = "Excluir item";
       btnExcluir.onclick = async () => {
-        // Garante que o usuário está logado para escrever
-        if (!auth.currentUser) { alert("Você precisa estar logado para excluir itens."); return; }
+        // Verifica se o usuário é admin antes de permitir a exclusão
+        const currentUser = auth.currentUser;
+        if (!currentUser) { alert("Você precisa estar logado para excluir itens."); return; }
+        const idTokenResult = await currentUser.getIdTokenResult(true);
+        if (idTokenResult.claims.admin !== true) {
+            alert("Apenas administradores podem excluir itens.");
+            return;
+        }
         await deleteDoc(doc(db, "compras", item.id));
       };
+      
+      // NOVO: Esconde os botões e selects de edição/exclusão se o usuário não for admin
+      // A visibilidade dos botões de ação também deve ser controlada aqui
+      // A visibilidade do formulário principal é controlada na updateUI, mas aqui para os botões da lista
+      const currentUser = auth.currentUser;
+      // Adicione um placeholder para idTokenResult caso não haja usuário logado ou seja necessário refresh
+      let isAdminOnItemLevel = false;
+      if (currentUser) {
+          // Não precisamos de um refresh no onSnapshot, pois o updateUI já cuida disso.
+          // Mas, para o caso específico de um usuário que acabou de virar admin ou vice-versa,
+          // e o onSnapshot já está rodando, precisamos de um token atualizado.
+          // Para simplicidade, vamos assumir que o updateUI já setou corretamente o isAdmin
+          // ou que o usuário vai logar/deslogar se o papel mudar.
+          // Para esta iteração, vamos usar a verificação local no onchange e onclick.
+          // Não faremos um getIdTokenResult(true) para CADA item, pois é ineficiente.
+          // Vamos confiar na verificação feita quando o botão é clicado/mudado.
+          // Apenas para a renderização inicial, podemos usar a mesma lógica do updateUI.
+          // No entanto, para evitar chamadas excessivas, vamos deixar a visibilidade
+          // do FORM de ADD na updateUI e a permissão de cliques nos botões individualmente.
+      }
+
 
       buttonGroupDiv.appendChild(selectParcelamento);
       buttonGroupDiv.appendChild(checkboxAprovado);
@@ -319,8 +377,7 @@ function carregarCompras() {
 
   }, (error) => {
     console.error("Erro ao carregar compras (onSnapshot):", error);
-    // Remover o alert se o erro for de permissão porque o usuário não está logado
-    // alert("Erro ao carregar compras em tempo real. Verifique seus índices do Firestore no console.");
+    // Não exibir alert aqui, pois pode ser erro de permissão por não estar logado ou não ser admin.
   });
 }
 
@@ -332,11 +389,17 @@ form.addEventListener("submit", async (e) => {
   const item = document.getElementById("item").value.trim();
   const prioridade = document.getElementById("prioridade").value;
   const valor = document.getElementById("valor").value.trim(); 
-  const parcelamento = 0; // Default 0 quando adicionado via formulário
+  const parcelamento = 0; 
 
-  // Garante que o usuário está logado antes de tentar adicionar
-  if (!auth.currentUser) {
+  // Garante que o usuário está logado E é admin antes de tentar adicionar
+  const currentUser = auth.currentUser;
+  if (!currentUser) {
       alert("Você precisa estar logado para adicionar itens.");
+      return;
+  }
+  const idTokenResult = await currentUser.getIdTokenResult(true); // Força refresh para claims
+  if (idTokenResult.claims.admin !== true) {
+      alert("Apenas administradores podem adicionar itens.");
       return;
   }
 
@@ -354,7 +417,7 @@ form.addEventListener("submit", async (e) => {
       concluido: false, 
       aprovado: false,   
       inserido_em: new Date(), 
-      userId: auth.currentUser.uid // NOVO: Armazena o ID do usuário que criou o item
+      userId: currentUser.uid // Armazena o ID do usuário que criou o item
     });
     form.reset();
   } catch (error) {
@@ -368,5 +431,4 @@ filterPrioridade.addEventListener("change", carregarCompras);
 searchItem.addEventListener("input", carregarCompras); 
 filterAprovado.addEventListener("change", carregarCompras);
 
-// Remove a chamada inicial de carregarCompras(), onAuthStateChanged cuidará disso.
-// carregarCompras(); 
+// onAuthStateChanged já cuida da chamada inicial de carregarCompras
