@@ -16,45 +16,81 @@
 </head>
 <body>
     <div class="header">
-        <img src="./img/lista-de-compras.png" alt="imagen de compras" class="header-image">
-        <h1> Lista de Compras</h1>
+        <!-- NOVO: Agrupando a imagem e o h1 em uma div flexível -->
+        <div class="header-main-group">
+            <img src="./img/lista-de-compras.png" alt="imagen de compras" class="header-image">
+            <h1> Lista de Compras</h1>
+        </div>
         <img src="./img/logotipo libelle.png" alt="logo da Libelle" class="logo">
     </div>
 
-    <div id="filters">
-        <label for="filter-prioridade">Filtrar por Prioridade:</label>
-        <select id="filter-prioridade">
-            <option value="">Todas</option>
-            <option value="Baixa">Baixa</option>
-            <option value="Média">Média</option>
-            <option value="Alta">Alta</option>
-        </select>
-        
-        <label for="filter-aprovado">Filtrar por Aprovado:</label>
-        <select id="filter-aprovado">
-            <option value="">Todos</option>
-            <option value="true">Aprovados</option>
-            <option value="false">Não Aprovados</option>
-        </select>
+    <!-- Seção de Autenticação - Visível por padrão, ocultará o app -->
+    <div id="auth-section" class="auth-container">
+        <h2>Bem-vindo!</h2>
+        <p>Faça login ou registre-se para gerenciar sua lista de compras.</p>
 
-        <label for="search-item">Buscar Item:</label>
-        <input type="text" id="search-item" placeholder="Buscar por nome...">
+        <form id="login-form" class="auth-form">
+            <h3>Login</h3>
+            <input type="email" id="login-email" placeholder="E-mail" required>
+            <input type="password" id="login-password" placeholder="Senha" required>
+            <button type="submit">Entrar</button>
+            <p><a href="#" id="show-register">Não tem uma conta? Registre-se</a></p>
+        </form>
+
+        <form id="register-form" class="auth-form hidden">
+            <h3>Registrar</h3>
+            <input type="email" id="register-email" placeholder="E-mail" required>
+            <input type="password" id="register-password" placeholder="Senha" required>
+            <button type="submit">Registrar</button>
+            <p><a href="#" id="show-login">Já tem uma conta? Faça login</a></p>
+        </form>
+
+        <!-- Botão de Login com Google (se ativado no Firebase Auth) -->
+        <button id="google-login-btn" class="google-btn">
+            <i class="fi fi-brands-google"></i> Entrar com Google
+        </button>
     </div>
 
-    <form id="form-compras">
-        <input type="text" id="item" placeholder="Novo item" required>
-        <select id="prioridade">
-            <option value="Baixa">Baixa</option>
-            <option value="Média">Média</option>
-            <option value="Alta">Alta</option>    
-        </select>
+    <!-- Conteúdo principal da aplicação - Oculto por padrão, visível após login -->
+    <div id="app-content" class="app-container hidden">
+        <div class="user-info">
+            Olá, <span id="user-email"></span>!
+            <button id="logout-btn">Sair</button>
+        </div>
 
-        <input type="text" id="valor" placeholder="Valor (ex: R$ 10,00)"> 
-        <button type="submit">Adicionar</button>
+        <div id="filters">
+            <label for="filter-prioridade">Filtrar por Prioridade:</label>
+            <select id="filter-prioridade">
+                <option value="">Todas</option>
+                <option value="Baixa">Baixa</option>
+                <option value="Média">Média</option>
+                <option value="Alta">Alta</option>
+            </select>
+            
+            <label for="filter-aprovado">Filtrar por Aprovado:</label>
+            <select id="filter-aprovado">
+                <option value="">Todos</option>
+                <option value="true">Aprovados</option>
+                <option value="false">Não Aprovados</option>
+            </select>
 
-    </form>
+            <label for="search-item">Buscar Item:</label>
+            <input type="text" id="search-item" placeholder="Buscar por nome...">
+        </div>
 
-    <ul id="lista-compras"></ul>
+        <form id="form-compras">
+            <input type="text" id="item" placeholder="Novo item" required>
+            <select id="prioridade">
+                <option value="Baixa">Baixa</option>
+                <option value="Média">Média</option>
+                <option value="Alta">Alta</option>      
+            </select>
+            <input type="text" id="valor" placeholder="Valor (ex: R$ 10,00)"> 
+            <button type="submit">Adicionar</button>
+        </form>
+
+        <ul id="lista-compras"></ul>
+    </div>
 
     <!-- Use type="module" porque você está usando 'import' em script.js -->
     <script src="script.js" type="module"></script>

@@ -10,15 +10,13 @@ body {
 h1 {
     color: #234161;
     text-align: left; /* Alinha o texto à esquerda por padrão (desktop) */
-    margin-bottom: 10px; /* Mantém um pequeno espaço, caso o header quebre a linha */
+    margin: 0; /* Remove margens extras */
     font-size: 2.5em;
-    flex-grow: 1; /* Permite que o h1 cresça e empurre o logo para a direita */
-
+    /* Remover flex-grow daqui para que o grupo principal controle a expansão */
+    
     /* Responsividade para h1 */
     @media (max-width: 600px) {
         font-size: 1.5em; /* Fonte menor em mobile */
-        margin: 0; /* Remove margens para melhor alinhamento flex */
-        flex-grow: 1; /* Permite que cresça em mobile também */
         text-align: center; /* Centraliza o texto dentro do espaço flexível em mobile */
         min-width: 100px; /* Garante uma largura mínima para evitar que encolha demais */
     }
@@ -30,7 +28,7 @@ h1 {
     width: 100%;
     display: flex;
     align-items: center; /* Alinha verticalmente os itens */
-    justify-content: flex-start; /* Alinha os itens à esquerda por padrão */
+    justify-content: space-between; /* Espalha o grupo principal e o logo */
     margin-bottom: 20px;
     padding: 0 10px;
     flex-wrap: nowrap; /* Por padrão, tenta manter os itens na mesma linha */
@@ -40,10 +38,30 @@ h1 {
         height: auto; /* Altura flexível em mobile */
         padding-bottom: 10px;
         justify-content: center; /* Centraliza o grupo em mobile */
-        gap: 5px; /* Espaçamento entre os itens do header */
-        flex-wrap: nowrap; /* Tenta manter na mesma linha no mobile */
+        flex-wrap: wrap; /* Permite quebrar linha em mobile se necessário */
     }
 }
+
+/* NOVO: Estilo para o grupo que contém a imagem de compras e o h1 */
+.header-main-group {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Centraliza a imagem e o h1 dentro do grupo */
+    flex-grow: 1; /* AGORA ESTE GRUPO VAI CRESCER para ocupar o espaço central */
+    flex-shrink: 0; /* Garante que este grupo não encolha demais */
+    padding-left: 145px; /* Espaço à esquerda para não colar na borda */
+    /* max-width: 70%; REMOVIDO: Com flex-grow:1, não precisamos de max-width aqui */
+
+    @media (max-width: 600px) {
+        flex-grow: 1; /* Mantém a capacidade de crescer */
+        justify-content: center; /* Centraliza o grupo em mobile */
+        order: 1; /* Define a ordem para aparecer primeiro no fluxo flex do header em mobile */
+        width: 100%; /* Ocupa a largura total para centralização */
+        max-width: none; /* Remove a largura máxima em mobile para que ele se adapte */
+        padding: 0; /* Remove padding em mobile para melhor uso do espaço */
+    }
+}
+
 
 .header-image {
     width: 50px;
@@ -64,14 +82,17 @@ h1 {
 
 .logo {
     display: block;
-    width: 150px; /* Tamanho padrão para desktop */
+    /* width: 150px; Comentado para usar max-width e height para ajuste */
+    max-width: 150px; /* Garante que o logo não seja muito grande */
+    height: auto; /* Garante que a proporção da imagem seja mantida */
     flex-shrink: 0; /* Previne que o item encolha */
     margin-left: auto; /* ESTE É O KEY: Empurra o logo para a extrema direita */
 
     /* Responsividade para o logo */
     @media (max-width: 600px) {
-        width: 60px; /* Reduz o tamanho do logo em mobile */
+        max-width: 60px; /* Reduz o tamanho do logo em mobile */
         margin-left: 5px; /* Ajusta a margem para mobile (não auto) */
+        order: 2; /* Define a ordem para aparecer depois do grupo principal em mobile */
     }
 }
 
@@ -352,6 +373,140 @@ h1 {
     font-weight: bold;
 }
 
+/* --- ESTILOS PARA AUTENTICAÇÃO --- */
+
+.auth-container {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.auth-container h2 {
+    color: #234161;
+    margin-bottom: 20px;
+}
+
+.auth-container p {
+    color: #555;
+    margin-bottom: 20px;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.auth-form h3 {
+    color: #2F4F4F;
+    margin-bottom: 10px;
+}
+
+.auth-form input[type="email"],
+.auth-form input[type="password"] {
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1em;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.auth-form button {
+    padding: 12px 20px;
+    background-color: #007bff; /* Azul primário para botões de autenticação */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.auth-form button:hover {
+    background-color: #0056b3;
+}
+
+.auth-form p {
+    font-size: 0.9em;
+    margin-top: 10px;
+}
+
+.auth-form a {
+    color: #007bff;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.auth-form a:hover {
+    text-decoration: underline;
+}
+
+/* Botão Google */
+.google-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 20px;
+    background-color: #db4437; /* Cor do Google */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%;
+    max-width: 400px; /* Para alinhamento com o auth-container */
+    margin: 0 auto; /* Centraliza o botão */
+}
+
+.google-btn:hover {
+    background-color: #c03328;
+}
+
+.google-btn i.fi-brands-google {
+    font-size: 1.2em; /* Tamanho do ícone do Google */
+}
+
+/* Informações do usuário logado e botão de sair */
+.user-info {
+    text-align: right;
+    margin-bottom: 15px;
+    font-size: 1.1em;
+    color: #2F4F4F;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-info button {
+    padding: 8px 15px;
+    background-color: #dc3545; /* Vermelho para sair */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.3s ease;
+}
+
+.user-info button:hover {
+    background-color: #c82333;
+}
+
+
+/* Classe utilitária para esconder/mostrar elementos */
+.hidden {
+    display: none !important;
+}
+
 /* Media Queries para responsividade geral */
 @media (max-width: 600px) {
     /* Já definidas nas seções anteriores, mas para agrupar */
@@ -382,6 +537,11 @@ h1 {
         margin-bottom: 5px; /* Adiciona espaço abaixo do texto "APROVADO!!!" */
         order: -1; /* Coloca o texto "APROVADO" antes dos outros elementos do button-group */
         text-align: left; /* Alinha o texto à esquerda quando empilhado */
+    }
+
+    .auth-container {
+        margin: 20px auto;
+        padding: 20px;
     }
 }
 
