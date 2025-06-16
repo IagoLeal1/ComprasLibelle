@@ -52,6 +52,11 @@ const logoutBtn = document.getElementById('logout-btn');
 const userEmailSpan = document.getElementById('user-email');
 const googleLoginBtn = document.getElementById('google-login-btn');
 
+// NOVO: Referência ao elemento onde o total será exibido (a div pai)
+const totalComprasValorDiv = document.getElementById('total-compras-valor');
+// NOVO: Referência ao h2 dentro da div do total
+const totalValueTextH2 = document.getElementById('total-value-text');
+
 
 // Função utilitária para formatar um número como moeda Real (BRL)
 function formatarMoeda(valor) {
@@ -105,6 +110,7 @@ async function updateUI(user) { // Adicionado 'async' pois usaremos await
     appContent.classList.add('hidden'); // Esconde o conteúdo do app
     form.classList.add('hidden'); // Garante que o formulário está escondido quando não logado
     lista.innerHTML = ''; // Limpa a lista se não houver usuário logado
+    totalComprasValorDiv.classList.add('hidden'); // Oculta o total quando deslogado
 
     // Se o onSnapshot estiver ativo, desinscreve ele aqui para evitar múltiplas chamadas/erros
     if (unsubscribeFirestore) {
@@ -197,6 +203,7 @@ let unsubscribeFirestore = null;
 
 /**
  * Carrega a lista de compras do Firestore, aplicando filtros e ouvindo atualizações em tempo real.
+ * Também calcula e exibe o valor total dos itens.
  */
 function carregarCompras() {
   // Desinscreve o listener anterior para evitar múltiplas chamadas
@@ -229,6 +236,7 @@ function carregarCompras() {
 
   unsubscribeFirestore = onSnapshot(q, (snapshot) => {
     const itemsToDisplay = [];
+    let totalValue = 0; // Inicializa a variável para o valor total
 
     snapshot.forEach((docItem) => {
       const item = docItem.data();
@@ -236,6 +244,14 @@ function carregarCompras() {
 
       if (termoBusca && !item.item.toLowerCase().includes(termoBusca)) {
         return; 
+      }
+
+      // Adiciona o valor do item ao total, verificando se é um número válido
+      if (item.valor) {
+          const itemValor = parseFloat(item.valor);
+          if (!isNaN(itemValor)) {
+              totalValue += itemValor;
+          }
       }
 
       itemsToDisplay.push(item); 
@@ -375,6 +391,10 @@ function carregarCompras() {
       lista.appendChild(li);
     });
 
+    // NOVO: Exibe o valor total no h2 dentro da div do total
+    totalValueTextH2.textContent = `Valor Total: ${formatarMoeda(totalValue)}`;
+    totalComprasValorDiv.classList.remove('hidden'); // Garante que o elemento pai (a div) esteja visível
+
   }, (error) => {
     console.error("Erro ao carregar compras (onSnapshot):", error);
     // Não exibir alert aqui, pois pode ser erro de permissão por não estar logado ou não ser admin.
@@ -415,7 +435,7 @@ form.addEventListener("submit", async (e) => {
       valor: valor,
       parcelamento: parcelamento,
       concluido: false, 
-      aprovado: false,   
+      aprovado: false,    
       inserido_em: new Date(), 
       userId: currentUser.uid // Armazena o ID do usuário que criou o item
     });

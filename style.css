@@ -554,3 +554,14 @@ h1 {
         padding: 0 10px; /* Padding para a lista em telas médias */
     }
 }
+
+#total-compras-valor {
+    margin: 20px 0;
+    padding: 5px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    text-align: center;
+    color: #2F4F4F;
+    font-size: 0.80em;
+}
